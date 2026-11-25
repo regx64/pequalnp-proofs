@@ -1,0 +1,24 @@
+== exhaustive n=6 S=8 E=0-1,0-2,0-3,1-4,2-5
+circuits=1645 lift-normalized read>=3: 0 outcomes={} moves={}
+== exhaustive n=6 S=8 E=0-1,0-2,0-3,0-4,1-5
+circuits=16668 lift-normalized read>=3: 681 outcomes={'read2': 681} moves={'redirect': 681, 'lift': 54}
+== exhaustive n=6 S=8 E=0-1,0-2,1-3,2-4,3-5
+circuits=623 lift-normalized read>=3: 0 outcomes={} moves={}
+== exhaustive n=5 S=7 E=0-1,0-2,1-3,2-4
+circuits=677 lift-normalized read>=3: 0 outcomes={} moves={}
+== sampled n=8 S=11 E=0-1,0-2,0-3,0-4,4-5,4-6,4-7 (400)
+circuits=400 lift-normalized read>=3: 82 outcomes={'read2': 82} moves={'redirect': 130, 'lift': 26}
+== sampled n=8 S=12 E=0-1,0-2,0-3,0-4,4-5,4-6,4-7 (400)
+circuits=400 lift-normalized read>=3: 77 outcomes={'read2': 77} moves={'redirect': 159, 'lift': 32}
+== sampled n=7 S=11 E=0-4,0-5,0-6,1-4,2-5,3-6 (400)
+circuits=400 lift-normalized read>=3: 8 outcomes={'read2': 8} moves={'lift': 3, 'redirect': 8}
+== sampled n=7 S=12 E=0-4,0-5,0-6,1-4,2-5,3-6 (400)
+circuits=400 lift-normalized read>=3: 20 outcomes={'read2': 20} moves={'lift': 34, 'redirect': 23}
+== sampled n=8 S=13 E=0-1,1-2,2-3,3-4,4-5,5-6,6-7,0-7 (400)
+circuits=400 lift-normalized read>=3: 0 outcomes={} moves={}
+== sampled n=8 S=14 E=0-1,1-2,2-3,3-4,4-5,5-6,6-7,0-7 (400)
+circuits=400 lift-normalized read>=3: 2 outcomes={'read2': 2} moves={'lift': 1, 'redirect': 2}
+== sampled n=7 S=12 E=0-1,1-2,2-3,3-4,4-5,0-5,0-6 (400)
+circuits=400 lift-normalized read>=3: 5 outcomes={'read2': 5} moves={'redirect': 5, 'lift': 3}
+== sampled n=7 S=11 E=0-1,1-2,2-3,3-4,4-5,5-6 (400)
+circuits=400 lift-normalized read>=3: 1 outcomes={'read2': 1} moves={'lift': 2, 'redirect': 1}

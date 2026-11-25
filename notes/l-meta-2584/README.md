@@ -87,3 +87,34 @@ lift-normalized; every normalized circuit of read >= 3 is tested for two shrinki
 Rewriting system {lift, delete + redirect, distributive, absorption rewire}: none increases size.
 Test whether greedy application always ends at a read-2 circuit on 4-cycle-free graphs; then look
 for a potential function that every move lowers.
+
+# Iteration 3
+
+## Rewriting system (`tools/rewrite.py`, `rewriting-results.txt`)
+
+Moves, none of which increases size: lift; delete a gate and redirect its reads to an earlier
+wire; `(s|A)&(s|B) -> s|(A&B)` when both ORs are read only there; absorb (`g = u & v`, an OR `o`
+on a private OR path from `v` reads `h = u & t`: `o` reads `t` instead).
+
+* Termination (on paper): each move strictly lowers (size, number of gates outside the top OR
+  tree, sum over operand slots of the operand's depth) lexicographically.
+* Computed: on every lift-normalized read->=3 circuit found (exhaustive sets on 4 to 6 vertices,
+  samples on 7 and 8 vertices; about 1,500 circuits), greedy application ends at read-2.
+* `tools/classify.py`: in the 681 bad circuits of 0-1,0-2,0-3,0-4,1-5 at 8 gates, the redirect is
+  always "replace a gate by one of its own operands" (an operand redundant in context).
+* Limit of the method: every small 4-cycle-free graph has only star-like least circuits with no
+  junk AND, so the statement is trivially true there; graphs with many cycles (Heawood, the
+  subdivided K4) were out of reach of the SAT sampler (no sample in 10 to 15 minutes).
+
+## Lemma R2 (`R2.lean`, builds locally, axioms `propext`, `Classical.choice`, `Quot.sound`)
+
+`Scratch.R2.read2_of_structure`: for ANY simple graph, an `IsAO2` circuit for its edge function is
+read-2 if (S) no AND gate is true at an input with exactly one variable on, and (T) every AND
+gate reached from the output through OR gates has operands whose OR closures contain only AND
+gates whose operands' OR closures contain no AND gate. No lower bound and no 4-cycle condition is
+used. Computed check (`tools/r2check.py`, about 20,000 circuits): no violation; each of the three
+conditions TopForm / (S) / junk depth <= 1 can be dropped only at the cost of read->=3 examples.
+
+Reduction obtained: L-meta-2584 follows from "every AO2 circuit for the incidence function has a
+no-larger AO2 circuit satisfying (S) and (T)". That normal-form statement is at least as strong as
+L-meta-2584 and is not known; (S) is close to the desk's L-meta-3321, (T) is new.

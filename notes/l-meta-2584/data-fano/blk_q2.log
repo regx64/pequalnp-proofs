@@ -1,0 +1,3 @@
+block s=26 t=2 m=23 n=14 E=21 rows=58 vars=6051 clauses=188571: UNKNOWN in 1800.0s
+block s=26 t=4 m=19 n=14 E=21 rows=58 vars=5541 clauses=195021: UNKNOWN in 1800.0s
+block s=26 t=6 m=15 n=14 E=21 rows=58 vars=5031 clauses=179671: UNKNOWN in 1800.0s

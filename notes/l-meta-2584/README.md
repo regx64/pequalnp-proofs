@@ -118,3 +118,146 @@ conditions TopForm / (S) / junk depth <= 1 can be dropped only at the cost of re
 Reduction obtained: L-meta-2584 follows from "every AO2 circuit for the incidence function has a
 no-larger AO2 circuit satisfying (S) and (T)". That normal-form statement is at least as strong as
 L-meta-2584 and is not known; (S) is close to the desk's L-meta-3321, (T) is new.
+
+# Iteration 4: the Fano incidence graph (Heawood graph) and Lemma V
+
+Question: does the incidence graph of the Fano plane (the Heawood graph: 14 vertices, 21 edges,
+tau = 7, 4-cycle-free) have an `IsAO2` circuit with fewer than its 27-gate star cover? A yes would
+be the first 4-cycle-free graph where the lower bound E + tau - 1 fails, i.e. the first instance
+where L-meta-2584 has content beyond the lower bound (iteration 1, E2/E3).
+
+## Block normal form used by every encoding (tools/fano/)
+
+A least circuit can be taken in TopForm (checked `L_meta_5779`). In a least TopForm circuit the
+checked `L_meta_1498` (a) gives: every gate below F other than the output has exactly one reader,
+an OR gate below F. Hence the gates below F are the "tops" (AND gates below F) and an OR tree over
+them; a top reads no gate below F (its reader would be an AND), and a gate not below F ("inner")
+reads no gate below F. So the order [inner gates] [tops] [OR tree] is topological, and the OR tree
+can be replaced by the chain T1 | T2 | ... | Tt (same size, every other gate unchanged). The
+checked `L_meta_1490` (first conjunct) gives, for every top, disjoint "sides" (inputs reachable
+from each operand through OR gates only), every cross pair an edge, one side of size <= 1.
+Further WLOG choices (each from least-ness: deletable or reorderable gates): distinct operands in
+increasing order, every inner gate read, greedy order inside the inner block, tops strictly
+increasing, every inner gate true on some maximal zero. Size: m inner + t tops + (t - 1) chain.
+Rows: minterms (edges) and maximal zeros (maximal independent sets), which determine a monotone
+function; optional implied rows (`--extra`): singletons and non-edge pairs, where every top is 0.
+
+Checks of the encoding: the hand-built 27-gate star cover `star27.txt` passes `verify.py` (right
+on all 2^14 inputs, C1/C2/C4, read-1) and, pinned with `--fix`, satisfies every encoding (SAT in
+0.1 s); on small graphs (C6, spider, trees) the encodings reproduce the exhaustive least sizes.
+
+## Prior work found upstream after these were derived
+
+The two lemmas below were derived independently in this iteration, and then found to be
+essentially already checked upstream, in the `TopForm` vocabulary (`junk` = inner AND gates,
+`centreless` = t0, `starEdges` / `Ustar` = E_real / E_virt, `lam` = merging gates in a centre's
+side cone, `orN \ lam` = X):
+* `L_meta_4183` (NoFourCycle, least, TopForm):
+  E + |tops \ centreless| + 2 |centreless| + |junk| + |orN \ lam| <= size + |Ustar| + 1.
+  This is Lemma V, before the step |tops \ centreless| >= tau - tau(Ustar).
+* `L_meta_1876` (girth >= 5, least, TopForm, junk empty): Ustar is empty. With `L_meta_4183` this is
+  the pure-OR lemma for least TopForm circuits on girth >= 5 graphs.
+* `L_meta_3760` (bipartite, NoFourCycle, least): |junk| != 1.
+So the new content here is only: the pure-OR lemma for ALL AND-depth-1 circuits (no least-ness,
+no girth condition), the encodings, and the data. For the Heawood search, `L_meta_3760` +
+`L_meta_1876` + `L_meta_4183` give: a least circuit with at most 26 gates has at least 2 junk gates
+(`topsat4.py --minand 2`).
+
+## Pure-OR lemma (proved here, on paper)
+
+If every AND gate of a monotone fan-in-2 circuit for the edge function of a 4-cycle-free graph
+reads only wires whose cones contain no AND gate ("AND depth 1"), the circuit has at least
+E + tau - 1 gates.
+
+Proof. Each AND gate (top) is `OR(A) & OR(B)` for input sets A, B. The output is an OR of tops
+(an input in the output's OR-expansion would make F true on one vertex). A top below the output
+is below F, so A, B are disjoint and A x B is a set of edges; with no 4-cycle, |A| = 1 or |B| = 1:
+a star with center v and side S within N(v). Let U_v be the union of the sides at center v and
+r_v the number of tops at v. Every edge lies in some star, so sum_v |U_v| >= E and the centers
+form a vertex cover, so the number of tops t >= tau. In the OR circuit below the tops, call an OR
+gate merging if both operands have nonempty OR-reachable input sets. Processing the OR-cones of
+the sides at v in topological order with a union-find on U_v shows at least |U_v| - r_v merging
+gates there. A merging gate has at least two OR-reachable inputs, all in N(v) for every center v
+whose side cone contains it; two centers would give a 4-cycle, so these gate sets are disjoint.
+The OR gates above the tops are at least t - 1. Total: sum_v (|U_v| - r_v) + t + (t - 1)
+= sum_v |U_v| + t - 1 >= E + tau - 1.
+
+So a circuit beating the star cover must have an AND gate not below F reading into a top (an
+"inner AND"). This is a partial lower bound, not a circular one: it says nothing about circuits
+with inner ANDs, which is exactly where L-meta-2584 lives.
+
+## Lemma V (virtual-edge accounting; proved here, on paper; = checked L_meta_4183 up to the tau step)
+
+For a circuit in block normal form for a 4-cycle-free graph, with
+* E_real = edges in some top's real star A_k x B_k (A_k, B_k: OR-reachable inputs of the operands),
+  E_virt = the other edges (covered only through inner AND gates),
+* t0 = tops whose real star is empty (one side has no OR-reachable input),
+* X = inner OR gates that are not merging gates inside the OR-cone of a center's side operand,
+* mAND = inner AND gates,
+
+  s >= E + tau - 1 + (2 t0 + X + mAND) - (|E_virt| + tau(E_virt)).
+
+Proof: the pure-OR count, applied to the real stars only (the merging-gate argument never needed
+the leaves of the OR trees to be inputs), gives s >= sum_v |U_v| + t + t0 + X + mAND - 1, while
+E <= sum_v |U_v| + |E_virt| and tau <= (number of centers) + tau(E_virt) <= (t - t0) + tau(E_virt).
+With no inner AND, E_virt is empty and Lemma V is the pure-OR lemma.
+
+Encoding (`topsat4.py --lemmaV TAU --exactX`): exact OR-reachable sets, exact real-edge
+indicators, exact X, and the cardinality constraint 2|E_virt| - 2 t0 - X - mAND >= E + tau - 1 - s
+(using tau(E_virt) <= |E_virt|). A first version of the exact X had a bug (the OR-cone did not
+stop at AND gates). It was found because full enumerations with and without the constraint
+disagreed: P4 at 6 gates gave 169 circuits without it and 162 with it. After the fix, the counts
+agree on every case tried (6 small graphs, 3 values of t each, sizes least to least + 2), so the
+constraint excludes no real circuit there.
+
+## Data
+
+* `innerand7.log`: on all 25 connected 4-cycle-free bipartite graphs with at most
+  7 vertices, no least block-form circuit has an inner AND (UNSAT for every t). One gate above
+  least size, inner-AND circuits exist (P4: `O0,1 A3,4 O0,5 O1,2 A6,7`).
+* Stronger form "V+": 2 t0 + X + mAND >= |E_virt| + tau(E_virt) for every block-form circuit
+  (inner ANDs never pay for themselves). It held on every inner-AND circuit enumerated (about
+  1,500 circuits, 8 graphs, sizes least + 1 and + 2); the minimum payment margin is 0. With Lemma V,
+  V+ implies the lower bound, hence L-meta-2584. V+ is open.
+* 2-slice relaxation (`topslice.py --slice`: rows of weight <= 2 only) also gives E + tau - 1 on
+  P4, P5, the spider and C6. Barrier (from memory, not checked here): for slice functions,
+  monotone and non-monotone complexities are close (Berkowitz), and the projective-plane
+  incidence test is cheap non-monotonically. So for large planes the 2-slice relaxation cannot
+  give E + tau - 1 (about n^{3/2}), and a general proof must use independent sets of size >= 3.
+  The bipartite star-complexity relaxation (`--bislice`) is too weak already on P4.
+* Literature: Jukna, "On graph complexity" (CPC 2006), Theorem 7.3 proves a size bound |E|/2 for
+  monotone FORMULAS (and depth log|E| - 1 for circuits) for triangle-free 4-cycle-free graphs. I
+  found no size lower bound of order |E| for monotone CIRCUITS for 4-cycle-free graphs. So the
+  E + tau - 1 bound for all 4-cycle-free graphs would be new (about n^{3/2} for projective planes).
+* The desk's own sketch for L-meta-2584 names the open part: "a least circuit whose blocks are not
+  single stars: such a block must be shown to cost at least a star cover of the edges it accepts".
+  That is V+ (in its least-circuit form).
+
+## Heawood (Fano incidence), 26 gates: results so far
+
+Upstream already has `L_meta_1483` (checked): every Monotone2 circuit for the Fano incidence
+function has at least 20 gates. So the least size is in [20, 27]; "no circuit below the star
+cover" needs UNSAT at every s in 20..26 (each s separately: block form needs least-ness, so a
+smaller circuit cannot be padded to 26 gates).
+
+Encodings and verdicts (CaDiCaL 1.x bundled with the Lean toolchain; 4 cores, 4 jobs at once):
+
+| encoding (file) | vars / clauses at s=26 | verdict |
+|---|---|---|
+| base W1-W4 (`tools/topsat.py base`) | 6,253 / 165,794 | UNKNOWN in 6,600 s |
+| + C1/C2/C4 WLOG (`topsat.py wlog`) | 7,722 / 201,674 | UNKNOWN in 6,600 s (DRAT 6 GB, deleted) |
+| block form, per t (`topsat2.py`) | 5.0k-6.3k / 174k-195k | t = 1..6: UNKNOWN in 1,800 s each |
+| block + implied rows + exact Lemma V (`topsat4.py --extra --lemmaV 7 --exactX`) | 10.7k-28.7k / 114k-405k | t = 13: UNSAT 0.4 s; t = 12: UNSAT 14.1 s; t = 1..11: UNKNOWN in 1,800 s each |
+
+Sanity: s = 27, t = 7 (the star cover exists) was UNKNOWN in 1,800 s (block form) and in 1,500 s
+(with implied rows), but SAT in 0.1 s with the star cover pinned (`--fix star27.txt`). So the
+solver, not the encoding, is the limit at this size. A timeout is recorded as UNKNOWN, never as UNSAT.
+
+Benchmark where everything closes: C8 (8 vertices). Base encoding at s = 11 had been UNKNOWN in
+811 s; the block form closes s = 7..10 for every t (`data-fano/c8_block.txt`), the hardest case in
+144 s, so the least size of C8 is 11 = E + tau - 1. On C8 the gain comes from the block form; Lemma
+V changes the times little (127.5 s vs 144 s for t = 1).
+
+Status: for the Fano incidence graph at 26 gates the answer is UNKNOWN. Proved: no 26-gate
+least circuit with 12 or 13 tops. Running: t = 11, 10, 9 with at least 2 junk gates (`--minand 2`,
+justified by `L_meta_3760` + `L_meta_1876` + `L_meta_4183`), 7,200 s each; t = 8 with 3,600 s.

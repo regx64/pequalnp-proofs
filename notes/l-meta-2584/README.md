@@ -240,7 +240,7 @@ function has at least 20 gates. So the least size is in [20, 27]; "no circuit be
 cover" needs UNSAT at every s in 20..26 (each s separately: block form needs least-ness, so a
 smaller circuit cannot be padded to 26 gates).
 
-Encodings and verdicts (CaDiCaL 1.x bundled with the Lean toolchain; 4 cores, 4 jobs at once):
+Encodings and verdicts (CaDiCaL 2.1.2 bundled with the Lean toolchain; 4 cores, 4 jobs at once):
 
 | encoding (file) | vars / clauses at s=26 | verdict |
 |---|---|---|
@@ -259,5 +259,6 @@ Benchmark where everything closes: C8 (8 vertices). Base encoding at s = 11 had 
 V changes the times little (127.5 s vs 144 s for t = 1).
 
 Status: for the Fano incidence graph at 26 gates the answer is UNKNOWN. Proved: no 26-gate
-least circuit with 12 or 13 tops. Running: t = 11, 10, 9 with at least 2 junk gates (`--minand 2`,
+least circuit with 12 or 13 tops (LRAT certificates checked by an independent checker:
+`data-fano/cert/`). Running: t = 11, 10, 9 with at least 2 junk gates (`--minand 2`,
 justified by `L_meta_3760` + `L_meta_1876` + `L_meta_4183`), 7,200 s each; t = 8 with 3,600 s.
